@@ -14,12 +14,17 @@ class ACIF(Frame):
     def __init__(self, master=None):
         Frame.__init__(self,master)
         self.grid(sticky=N+S+E+W)
+        self.createMainMenu()
         self.loadAndShowImage()
+        
+    def createMainMenu(self):
+        self.fileButton = Button(self, text="File", command=self.quit)
+        self.fileButton.grid()
 
     def loadAndShowImage(self):
         self.im = Image.open("1.jpg")
         self.canvas = Canvas(self, height=self.im.size[1]+15, width=self.im.size[0]+25)
-        self.canvas.pack(side=LEFT,fill=BOTH,expand=1)
+        self.canvas.grid()
         self.photo = ImageTk.PhotoImage(self.im)
         self.item = self.canvas.create_image(10,10,anchor=NW, image=self.photo)
 
