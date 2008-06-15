@@ -17,7 +17,7 @@ class ACIF(Frame):
 		self.canvas = Canvas(master, height=self.im.size[1]+20, width=self.im.size[0]+20)
 		self.canvas.pack(side=LEFT,fill=BOTH,expand=1)
 		self.photo = ImageTk.PhotoImage(self.im)
-		self.item = self.аcanvas.create_image(10,10,anchor=NW, image=self.photo)
+		self.item = self.canvas.create_image(10,10,anchor=NW, image=self.photo)
 		print "ASD"
 
 
