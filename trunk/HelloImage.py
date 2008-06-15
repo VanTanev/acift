@@ -6,7 +6,7 @@
 # developed using ActivePython 2.2: http://www.activestate.com
 
 from Tkinter import *
-from tkFileDialog import askopenfilename
+from tkFileDialog import *
 import Image            #PIL
 import ImageTk          #PIL
 import sys
@@ -17,7 +17,7 @@ import os
     Във всеки от случаите програмата отваря съответните файлове
     Това е клас в нов стил, наследяващ списък - има доста готови методи :)
 """
-class Pages:        
+class FileOperations:        
     def setFiles(self, filenames = []):
         print "ASD"
         if len(filenames) == 1 and os.path.isdir(filenames[0]):
@@ -31,18 +31,31 @@ class Pages:
         else:
           self.pages = filenames
 
+
+          
+class ControlFrames:
+    def openFiles(self):
+        filename = askopenfilenames(filetypes=[("Jpeg Files","*.jpg"),("All Files","*")])
+        for n in filename: print n
+        return filename
+
+
+
 class MainFrame(Frame):
     def __init__(self, master=None):
+        self.fileOps = FileOperations()
+        self.controlFrames = ControlFrames()
+
         Frame.__init__(self,master)
-        self.grid(sticky=N+S+E+W)
-        self.files = Pages()
-        self.createMenuBar()        
+        self.createMenuBar()  
+        self.grid(row=0, sticky=N+S+E+W)
+      
         #FIXME: Hardcoded!
         self.loadImages()
         
         self.loadAndShowImage()
 
-    def selecFile():
+    def selectFile(self):
         self.filename = askopenfilename(filetypes=[("Jpeg Files","*.jpg"),("All Files","*")])
         return self.filename
         
@@ -54,24 +67,20 @@ class MainFrame(Frame):
         fileButton.grid(column=0, sticky=NW)
         fileButton.menu = Menu(fileButton)
 
-        fileButton.menu.add_command(label="Open")#, command=selectFile())
+        fileButton.menu.add_command(label="Open", command=self.fileOps.setFiles(self.controlFrames.openFiles))
         fileButton['menu'] = fileButton.menu
         
-
-        
-        #self.quitButton = Button(self, text="Quit!", command=quit)
-        #self.quitButton.grid()
         return
 
-    def loadAndShowImage(self):
+    def loadAndShowImage(self, fileName = "1.jpg"):
         try:
-            self.im = Image.open(self.files.pages[0])
+            self.im = Image.open(fileName)
         except Exception, e:
             print >>sys.stderr, e
             sys.exit(1)
             
         self.canvas = Canvas(self, height=self.im.size[1]+15, width=self.im.size[0]+25)
-        self.canvas.grid()
+        self.canvas.grid(row=1)
         self.photo = ImageTk.PhotoImage(self.im)
         self.item = self.canvas.create_image(10,10,anchor=NW, image=self.photo)
     
@@ -80,7 +89,7 @@ class MainFrame(Frame):
     """
     def loadImages(self):
         #FIXME: Hardcoded
-        self.files.setFiles(["1.jpg"])
+        self.fileOps.setFiles(["1.jpg"])
 
 
 ACIFT = MainFrame()
