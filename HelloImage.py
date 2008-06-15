@@ -10,7 +10,7 @@ import ImageTk          #PIL
 import sys
 import getopt
 
-class ACIF(Frame):
+class MainFrame(Frame):
     def __init__(self, master=None):
         Frame.__init__(self,master)
         self.grid(sticky=N+S+E+W)
@@ -18,29 +18,23 @@ class ACIF(Frame):
         self.loadAndShowImage()
         
     def createMainMenu(self):
-        self.fileButton = Button(self, text="File", command=self.quit)
-        self.fileButton.grid()
+        self.quitButton = Button(self, text="Quit!", command=self.quit)
+        self.quitButton.grid()
 
     def loadAndShowImage(self):
-        self.im = Image.open("1.jpg")
+        try:
+            self.im = Image.open("1.jpg")
+        except Exception, e:
+            print >>sys.stderr, e
+            sys.exit(1)
+            
         self.canvas = Canvas(self, height=self.im.size[1]+15, width=self.im.size[0]+25)
         self.canvas.grid()
         self.photo = ImageTk.PhotoImage(self.im)
         self.item = self.canvas.create_image(10,10,anchor=NW, image=self.photo)
 
 
-MainFrame = Tk()
-MainFrame.title("ACIF - A Comic is Fine too")
 
-#execute.master.title("ACIF - A Comic is Fine too")
-try:
-    print "ASDD"
-    execute = ACIF(MainFrame)
-    MainFrame.mainloop()   
-    
-except Exception, e:
-    print >>sys.stderr, e
-    print "USAGE: HelloImage <image filename>"
-    sys.exit(1)
-
-
+ACIFT = MainFrame()
+ACIFT.master.title("ACiF7 - A Comic is Fine too")
+ACIFT.mainloop()   
