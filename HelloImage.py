@@ -11,24 +11,27 @@ import sys
 import getopt
 
 class ACIF(Frame):
-	def __init__(self, master=None):
-		#Frame.__init__(self,master)
-		self.im = Image.open("1.jpg")
-		self.canvas = Canvas(master, height=self.im.size[1]+20, width=self.im.size[0]+20)
-		self.canvas.pack(side=LEFT,fill=BOTH,expand=1)
-		self.photo = ImageTk.PhotoImage(self.im)
-		self.item = self.canvas.create_image(10,10,anchor=NW, image=self.photo)
-		print "ASD"
+    def __init__(self, master=None):
+        Frame.__init__(self,master)
+        self.grid(sticky=N+S+E+W)
+        self.loadAndShowImage()
+
+    def loadAndShowImage(self):
+        self.im = Image.open("1.jpg")
+        self.canvas = Canvas(self, height=self.im.size[1]+15, width=self.im.size[0]+25)
+        self.canvas.pack(side=LEFT,fill=BOTH,expand=1)
+        self.photo = ImageTk.PhotoImage(self.im)
+        self.item = self.canvas.create_image(10,10,anchor=NW, image=self.photo)
 
 
-tk = Tk()
-tk.title("ACIF - A Comic is Fine too")
+MainFrame = Tk()
+MainFrame.title("ACIF - A Comic is Fine too")
 
 #execute.master.title("ACIF - A Comic is Fine too")
 try:
-	print "ASDD"
-	execute = ACIF(tk)
-	tk.mainloop()	
+    print "ASDD"
+    execute = ACIF(MainFrame)
+    MainFrame.mainloop()   
     
 except Exception, e:
     print >>sys.stderr, e
