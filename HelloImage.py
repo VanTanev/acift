@@ -13,67 +13,59 @@ import sys
 import getopt
 import os
 
-""" Filenames е или един или няколко файла, или папка
-    Във всеки от случаите програмата отваря съответните файлове
-    Това е клас в нов стил, наследяващ списък - има доста готови методи :)
-"""
-class FileOperations:        
-    def setFiles(self, filenames = []):
-        print "ASD"
-        if len(filenames) == 1 and os.path.isdir(filenames[0]):
-            """ os.walk връща 3 неща:
-                път към директорията,
-                списък от директории в нея,
-                списък от файлове в нея.
-            """
-            self.dirPath, self.dirList, self.files = os.walk(filenames[0])
-            self.pages = [ os.join(self.dirPath,filename) for filename in self.files]
-        else:
-          self.pages = filenames
-
-
           
 class ControlFrames:
+    """
+    Filenames е или един или няколко файла, или папка
+    Във всеки от случаите програмата отваря съответните файлове
+    Това е клас в нов стил, наследяващ списък - има доста готови методи :)
+    """
     def openFiles(self):
-        filename = askopenfilenames(filetypes=[("Jpeg Files","*.jpg"),("All Files","*")])
-        for n in filename: print n
-        return filename
+        filenames = [file for file in askopenfilenames(filetypes=[("Jpeg Files","*.jpg"),("All Files","*")])]
+        print filenames
+        if len(filenames) == 1 and os.path.isdir(filenames[0]):
+            """
+            os.path.walk връща 3 неща - предполагам е очевидно кои са :)
+            """
+            self.dirPath, self.dirList, self.files = os.walk(filenames[0])        
+        return filenames
 
+"""
+This class contains the menu bar and its event handlers
+"""
+class MenuBar(Frame):
+    def __init__(self, master = None):
+        Frame.__init__(self, master)
+        self.menubar = Frame(master, relief = RAISED, borderwidth = 1)
+        self.menubar.grid(column = 0, sticky = NW)
 
+        self.fileButton = Menubutton(self.menubar, text = "File")
+        self.fileButton.grid(column = 0, sticky = NW)
+        self.fileButton.menu = Menu(self.fileButton)
+        self.fileButton.menu.add_command(label = "Open", command = self.openButton)
+        self.fileButton['menu'] = self.fileButton.menu
+        return
+
+    def openButton(self):
+        self.pages = ACIFT.controlFrames.openFiles()
+        print self.pages
+        ACIFT.showImage(self.pages[0])
 
 class MainFrame(Frame):
-    def __init__(self, master=None):
-        self.fileOps = FileOperations()
+    def __init__(self, master = None):
+        Frame.__init__(self, master)
         self.controlFrames = ControlFrames()
-
-        Frame.__init__(self,master)
-        self.createMenuBar()  
-        self.grid(row=0, sticky=N+S+E+W)
-      
-        #FIXME: Hardcoded!
-        self.loadImages()
-        
-        self.loadAndShowImage()
+        self.menu = MenuBar(self)
+        self.grid(row = 0, sticky = N + S + E + W)
+        self.showImage()
 
     def selectFile(self):
         self.filename = askopenfilename(filetypes=[("Jpeg Files","*.jpg"),("All Files","*")])
         return self.filename
         
-    def createMenuBar(self):
-        menubar = Frame(self, relief=RAISED,borderwidth=1)
-        menubar.grid(column=0, sticky=NW)
-
-        fileButton = Menubutton(menubar, text="File")
-        fileButton.grid(column=0, sticky=NW)
-        fileButton.menu = Menu(fileButton)
-
-        fileButton.menu.add_command(label="Open", command=self.fileOps.setFiles(self.controlFrames.openFiles))
-        fileButton['menu'] = fileButton.menu
-        
-        return
-
-    def loadAndShowImage(self, fileName = "1.jpg"):
+    def showImage(self, fileName = "1.jpg"):
         try:
+            print fileName
             self.im = Image.open(fileName)
         except Exception, e:
             print >>sys.stderr, e
@@ -87,11 +79,10 @@ class MainFrame(Frame):
     """ Този метод трябва да вика File Chooser-ът и да му праща списък от
     имена на файлове/директории.
     """
-    def loadImages(self):
-        #FIXME: Hardcoded
-        self.fileOps.setFiles(["1.jpg"])
 
-
+print "LOL"
 ACIFT = MainFrame()
+print "LOL"
 ACIFT.master.title("ACiF7 - A Comic is Fine, too")
-ACIFT.mainloop()   
+ACIFT.mainloop()
+print "LOL"
