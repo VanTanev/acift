@@ -7,6 +7,8 @@
 
 from Tkinter import *
 from tkFileDialog import *
+import tkMessageBox
+
 import Image            #PIL
 import ImageTk          #PIL
 import sys
@@ -48,8 +50,12 @@ class MenuBar(Frame):
 
     def openButton(self):
         self.pages = ACIFT.controlFrames.openFiles()
-        print self.pages
-        ACIFT.showImage(self.pages[0])
+        
+        if self.pages:
+            print self.pages
+            ACIFT.showImage(self.pages[0])
+        else:
+            print "No image selected"
 
 class MainFrame(Frame):
     def __init__(self, master = None):
@@ -57,6 +63,8 @@ class MainFrame(Frame):
         self.controlFrames = ControlFrames()
         self.menu = MenuBar(self)
         self.grid(row = 0, sticky = N + S + E + W)
+        self.canvas = Canvas(self)
+        self.canvas.grid(row=1)
         self.showImage()
 
     def selectFile(self):
@@ -67,14 +75,20 @@ class MainFrame(Frame):
         try:
             print fileName
             self.im = Image.open(fileName)
+            self.canvas.config(height=self.im.size[1]+15, width=self.im.size[0]+25)
+
+            self.photo = ImageTk.PhotoImage(self.im)
+            self.item = self.canvas.create_image(10,10,anchor=NW, image=self.photo)
         except Exception, e:
             print >>sys.stderr, e
-            sys.exit(1)
+            tkMessageBox.showwarning(
+                "File open error",
+                "Cannot open this file\n(%s)" % fileName
+            )
+
             
-        self.canvas = Canvas(self, height=self.im.size[1]+15, width=self.im.size[0]+25)
-        self.canvas.grid(row=1)
-        self.photo = ImageTk.PhotoImage(self.im)
-        self.item = self.canvas.create_image(10,10,anchor=NW, image=self.photo)
+
+
     
     """ Този метод трябва да вика File Chooser-ът и да му праща списък от
     имена на файлове/директории.
