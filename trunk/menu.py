@@ -17,11 +17,10 @@ class MenuBar(Tk.Frame):
         return
 
     def openButton(self):
-        self.pages = self.master.controlFrames.openFiles()
+        self.data = self.master.controlFrames.openFiles()
         
-        if self.pages:
-            print self.pages
-            self.master.showImage(self.pages[0])
+        if self.data:
+            self.master.loadImages(self.data)
         else:
             print "No image selected"
 
