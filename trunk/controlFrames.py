@@ -21,9 +21,12 @@ class ControlFrames:
             self.dir = os.path.split(filesToOpen[0])[0]
             if len(filesToOpen) == 1:
                 firstFile = filesToOpen[0]
-                filesToOpen = [ os.path.join(self.dir,file) for file in os.listdir(self.dir) if file.endswith(".jpg")]
+                #filesToOpen = [ os.path.join(self.dir,file) for file in os.listdir(self.dir) if file.endswith(".jpg")]
+                filesToOpen = [ self.dir + '/' + file for file in os.listdir(self.dir) if file.endswith(".jpg")]
                 print firstFile
+                print "lol"
                 print filesToOpen
+                print "lol"
                 firstFile = filesToOpen.index(firstFile)
             else:
                 firstFile = 0

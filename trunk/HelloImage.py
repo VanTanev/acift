@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #HelloImage - display an image file
 
-#from Tkinter import *
+#import Tkinter as Tkinter
 import tkMessageBox
 import Image
 import ImageTk
@@ -25,16 +25,28 @@ DONE:
 Class separation in files
 """
 
-class MainFrame(Tk.Frame):
+class MainFrame():
     def __init__(self, master = None):
-        Tk.Frame.__init__(self, master)
-        self.controlFrames = ControlFrames()
-        self.menu = MenuBar(self)
-        self.grid(row = 0, sticky = Tk.N + Tk.S + Tk.E + Tk.W)
-        self.canvas = Tk.Canvas(self)
+
+        main_frame = Tk.Frame(master)
+        main_frame.pack()
+        #self.controlFrames = ControlFrames()
+        ACIFT_top_menu = MenuBar(ACIFT)     #the menus    
+
+        ###  Should be removed later on
+        self.filenames = ["1.jpg", "2.jpg"]
+        self.currentFile = 0
+        self.numberOfImages = 2
+        self.sizeChanged = True #<- DO NOT touch this, or program goes BooM!
+        ###
+
+        self.canvas = Tk.Canvas(main_frame)
         self.canvas.grid(row=1)
+
+        
+        self.showImage()
+
         self.setBindings()
-        #self.showImage()
         
     def loadImages(self, data = (".","",0) ):
         self.dirName, self.filenames, self.currentFile = data
@@ -43,19 +55,37 @@ class MainFrame(Tk.Frame):
         self.showImage()
 
     def setBindings(self):
-        self.bind_all("<Next>", self.nextPage)
-        self.bind_all("<Prior>", self.prevPage)
-        self.bind_all("Space", self.nextPage)
+        ACIFT.bind_all("<Next>", self.nextPage)
+        ACIFT.bind_all("<Prior>", self.prevPage)
+        ACIFT.bind_all("<space>", self.nextPage)
+        #ACIFT.bind_all("<ButtonPress>", self.mouseButtonPressed)
+        ACIFT.bind(("a"), self.changeImageSize)
+
+    def changeImageSize(self,event):
+        if self.sizeChanged:
+            self.sizeChanged = False
+            return False
+        try:
+            print "Width: ", event.width, "Height: ", event.height
+            self.im = self.im.resize(
+                (self.im.size[0]+5,self.im.size[1]+5))
+            self.sizeChanged = True
+            self.showImage_updateCanvas()        
+        except Exception, e:
+            print Exception, e
+        return True
 
     def showImage(self):
+        self.showImage_openFile()
+        self.showImage_updateCanvas()
+        return
+    
+    def showImage_openFile(self):
         print "     Files:", self.filenames
         print "     Starting with:", self.currentFile
         #print "     Trying to open item", currentFile, "Out of", filenames
         try:
             self.im = Image.open(self.filenames[self.currentFile])
-            self.canvas.config(height=self.im.size[1]+15, width=self.im.size[0]+25)
-            self.photo = ImageTk.PhotoImage(self.im)
-            self.item = self.canvas.create_image(10,10,anchor=Tk.NW, image=self.photo)
         #TODO: Check which type of exception should be caught here
         #It shouldn't be just 'Exception', because that will catch
         #*all* exceptions, not just the ones about the file opening.
@@ -65,6 +95,13 @@ class MainFrame(Tk.Frame):
                 "File open error",
                 "Cannot open this file\n(%s)" % self.filenames[self.currentFile]
             )
+        self.showImage_updateCanvas()
+        return
+    
+    def showImage_updateCanvas(self):
+        self.canvas.config(height=self.im.size[1], width=self.im.size[0])
+        self.photo = ImageTk.PhotoImage(self.im)
+        self.item = self.canvas.create_image(0,0,anchor=Tk.NW, image=self.photo)
 
     def nextPage(self, event):
         self.currentFile += 1
@@ -78,6 +115,13 @@ class MainFrame(Tk.Frame):
             self.currentFile = self.numberOfImages -1            
         self.showImage()
 
-ACIFT = MainFrame()
-ACIFT.master.title("ACiF7 - A Comic is Fine, too")
+
+
+ACIFT = Tk.Tk()
+####  Acift components:
+ACIFT_mainframe = MainFrame(ACIFT)   #the actual frame for images
+#ACIFT_top_menu = MenuBar(ACIFT)     #the menus    
+
+####
+ACIFT.title("ACiF7 - A Comic is Fine, too")
 ACIFT.mainloop()
