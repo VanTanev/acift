@@ -32,6 +32,12 @@ class ImageFrame(wx.Frame):
         self.bitmap = wx.StaticBitmap(self, -1, self.bmp)
         self.SetTitle("ACIFT")
         self.__do_layout()
+        self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+
+    def OnKeyDown(self, event):
+        keycode = event.GetKeyCode()
+        print keycode
+        event.Skip()
 
         
     def __do_layout(self):
@@ -40,6 +46,17 @@ class ImageFrame(wx.Frame):
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
+                # Menu Bar
+        self.MainFrame_menubar = wx.MenuBar()
+        wxglade_tmp_menu = wx.Menu()
+        wxglade_tmp_menu.Append(wx.NewId(), "Open", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendSeparator()
+        wxglade_tmp_menu.Append(wx.NewId(), "Exit", "", wx.ITEM_NORMAL)
+        self.MainFrame_menubar.Append(wxglade_tmp_menu, "File")
+        wxglade_tmp_menu = wx.Menu()
+        self.MainFrame_menubar.Append(wxglade_tmp_menu, "About")
+        self.SetMenuBar(self.MainFrame_menubar)
+        # Menu Bar end
 
     def openFile(self, event):
         openFileDialog = wx.FileDialog(self, "Open a file", self.dirname, "", "*.jpg", wx.OPEN|wx.FD_MULTIPLE)
