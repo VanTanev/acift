@@ -10,7 +10,7 @@
 *_ArchiveImport има следната вътрешна структура:
 DecompressArchaive
 MemCacheManager
-FileObjectOutputModule
+FileObjectOutputModule_
 
 
 
