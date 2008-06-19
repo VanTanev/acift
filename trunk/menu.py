@@ -13,7 +13,7 @@ class KeyEvent(wx.Frame):
         self.Show(True)
 
 
-def OnKeyDown(self, event):
-    keycode = event.GetKeyCode()
-    print keycode
-    event.Skip()
+    def OnKeyDown(self, event):
+        keycode = event.GetKeyCode()
+        print keycode
+        event.Skip()
