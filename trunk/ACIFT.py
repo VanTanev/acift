@@ -10,12 +10,10 @@ if __name__ == "__main__":
     ACIFT = ACIFT()
 
     wx.InitAllImageHandlers()
-   
-    MainFrame = ImageFrame(None, -1, "")
-    teh_menu = MenuBar(MainFrame)
+
+    Main = ImageFrame(None, -1, "")
+    Menu = MenuBar(Main)
     
-
-    ACIFT.SetTopWindow(MainFrame)
-    MainFrame.Show()
+    ACIFT.SetTopWindow(Main)
+    Main.Show()
     ACIFT.MainLoop()
-
