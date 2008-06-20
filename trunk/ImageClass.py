@@ -21,40 +21,49 @@ def pilToImage(pil):
     image.SetData(pil.convert('RGB').tostring())
     return image
 
+ID_OPEN=111
+ID_ABOUT=101
+ID_EXIT=110
+
+
 class ImageFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        
         self.dirname = "."
         self.openFile(None)
-        self.image = Image.open(self.dir + "/" + self.files[0])
-        self.bmp = pilToBitmap(self.image)
-        self.bitmap = wx.StaticBitmap(self, -1, self.bmp)
+
         self.SetTitle("ACIFT")
         self.__do_layout()
+
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+        wx.EVT_MENU(self, ID_OPEN, self.openFile)
+        wx.EVT_MENU(self, ID_EXIT, self.terminateProgram)
+
+    def terminateProgram(self, event):
+        self.Close(True)
 
     def OnKeyDown(self, event):
         keycode = event.GetKeyCode()
-        print keycode
+        print chr(keycode)
         event.Skip()
 
         
     def __do_layout(self):
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.bitmap, 0, wx.EXPAND|wx.SHAPED, 0)
-        self.SetSizer(sizer)
-        sizer.Fit(self)
+
+
         self.Layout()
-                # Menu Bar
+        # Menu Bar
         self.MainFrame_menubar = wx.MenuBar()
-        wxglade_tmp_menu = wx.Menu()
-        wxglade_tmp_menu.Append(wx.NewId(), "Open", "", wx.ITEM_NORMAL)
-        wxglade_tmp_menu.AppendSeparator()
-        wxglade_tmp_menu.Append(wx.NewId(), "Exit", "", wx.ITEM_NORMAL)
-        self.MainFrame_menubar.Append(wxglade_tmp_menu, "File")
-        wxglade_tmp_menu = wx.Menu()
-        self.MainFrame_menubar.Append(wxglade_tmp_menu, "About")
+        menu_file = wx.Menu()
+        menu_file.Append(ID_OPEN, "Open", "")
+        menu_file.AppendSeparator()
+        menu_file.Append(ID_EXIT, "Exit", "Exit the program")
+        self.MainFrame_menubar.Append(menu_file, "File")
+        menu_about = wx.Menu()
+        self.MainFrame_menubar.Append(menu_about, "About")
         self.SetMenuBar(self.MainFrame_menubar)
         # Menu Bar end
 
@@ -68,4 +77,19 @@ class ImageFrame(wx.Frame):
             print "Current Dir:", self.dir
             print "Files",self.files
             print "*"*20
-            openFileDialog.Destroy()
+            self.openImage()
+        openFileDialog.Destroy()
+        
+    def openImage(self):
+        self.image = Image.open(self.dir + "/" + self.files[0])
+        self.bmp = pilToBitmap(self.image)
+        try:
+            self.current_image
+        except AttributeError:
+            pass
+        else:
+            self.current_image.Destroy()
+        self.bitmap = wx.StaticBitmap(self, -1, self.bmp)
+        self.current_image = self.sizer.Add(self.bitmap, 0, wx.EXPAND|wx.SHAPED, 0)
+        self.SetSizer(self.sizer)
+        self.sizer.Fit(self)        
