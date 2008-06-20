@@ -1,8 +1,5 @@
 from utils import *
-
-def setBindings(object):
-    object.Bind(wx.EVT_KEY_DOWN, OnKeyDown)
-    print "Binded!"
+#from menu import MenuBar
 
 class ACIFT(wx.PySimpleApp):
     def __init__(self, *args, **kwargs):
@@ -11,15 +8,14 @@ class ACIFT(wx.PySimpleApp):
 
 if __name__ == "__main__":
     ACIFT = ACIFT()
-    #ACIFT.setBindings = setBindings(ACIFT)
+
     wx.InitAllImageHandlers()
+   
+    MainFrame = ImageFrame(None, -1, "")
+    teh_menu = MenuBar(MainFrame)
     
-    print menu
-    
-    Main = ImageFrame(None, -1, "")
-    
-    #Main.setBindings = setBindings(Main)
-    ACIFT.SetTopWindow(Main)
-    Main.Show()
+
+    ACIFT.SetTopWindow(MainFrame)
+    MainFrame.Show()
     ACIFT.MainLoop()
 

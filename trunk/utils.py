@@ -2,11 +2,11 @@
 This file serves as a hub for all imports, so that the Main
 can look pretty.
 """
-#from menu import *
-import menu
+from menu import MenuBar
+#import menu
 from ImageClass import *
 
-
+'''
 def get_events():
     for x in dir(wx):
         if x.startswith('EVT_'):
@@ -26,3 +26,4 @@ def OnKeyDown(event):
     elif keycode == wx.WXK_PAGEUP:
         self.nextPage()
     event.Skip()
+'''
