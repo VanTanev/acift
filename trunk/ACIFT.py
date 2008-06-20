@@ -4,7 +4,7 @@ from utils import *
 class ACIFT(wx.PySimpleApp):
     def __init__(self, *args, **kwargs):
         wx.PySimpleApp.__init__(self, *args, **kwargs)
-        
+
 
 if __name__ == "__main__":
     ACIFT = ACIFT()
