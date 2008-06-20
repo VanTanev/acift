@@ -15,14 +15,9 @@ class MenuBar():
         Main_MenuBar.Append(menu_about, "About")
         master.SetMenuBar(Main_MenuBar)
         
-        master.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
         wx.EVT_MENU(master, ID_OPEN, master.openFile)
         wx.EVT_MENU(master, ID_EXIT, self.terminateProgram)
 
     def terminateProgram(self, event):
         master.Close(True)
 
-    def OnKeyDown(self, event):
-        keycode = event.GetKeyCode()
-        print chr(keycode)
-        event.Skip()

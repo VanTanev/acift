@@ -2,28 +2,22 @@
 This file serves as a hub for all imports, so that the Main
 can look pretty.
 """
-from menu import MenuBar
-#import menu
+
+from menu import *
 from ImageClass import *
 
-'''
+
 def get_events():
-    for x in dir(wx):
-        if x.startswith('EVT_'):
-            print x
+    return [_ for _ in dir(wx) if _.startswith("EVT") ]
+            
+def get_FD_commands():
+    return [_ for _ in dir(wx) if _.startswith("FD") ]
+
+def get_StaticBitmap_Set():
+    return [_ for _ in dir(wx.StaticBitmap) if _.startswith("Set") ]
+
 
 if __name__ == '__main__':
-    get_events()
-
-
-
-def OnKeyDown(event):
-    print "A key was pressed!"
-    print event
-    keycode = event.GetKeyCode()
-    if keycode == wx.WXK_PAGEDOWN:
-        self.nextPage()
-    elif keycode == wx.WXK_PAGEUP:
-        self.nextPage()
-    event.Skip()
-'''
+    print get_events()
+    #get_FD_commands()
+    #get_StaticBitmap_Set()
