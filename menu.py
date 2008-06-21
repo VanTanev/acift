@@ -5,6 +5,7 @@ ID_EXIT=110
 
 class MenuBar():
     def __init__(self, master):
+        self.master = master #needed for internal functions
         Main_MenuBar = wx.MenuBar()
         menu_file = wx.Menu()
         menu_file.Append(ID_OPEN, "Open", "")
@@ -19,5 +20,5 @@ class MenuBar():
         wx.EVT_MENU(master, ID_EXIT, self.terminateProgram)
 
     def terminateProgram(self, event):
-        master.Close(True)
+        self.master.Close(True)
 

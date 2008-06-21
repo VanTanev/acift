@@ -42,25 +42,11 @@ class ImageFrame(wx.Frame):
     def _doLayout(self):
         self.Layout()
         self.Centre()
-        self.MainFrame_menubar = wx.MenuBar()
-        self.ID_OPEN=111
-        self.ID_ABOUT=101
-        self.ID_EXIT=110
-        menu_file = wx.Menu()
-        menu_file.Append(self.ID_OPEN, "Open", "")
-        menu_file.AppendSeparator()
-        menu_file.Append(self.ID_EXIT, "Exit", "Exit the program")
-        self.MainFrame_menubar.Append(menu_file, "File")
-        menu_about = wx.Menu()
-        self.MainFrame_menubar.Append(menu_about, "About")
-        self.SetMenuBar(self.MainFrame_menubar)
     
     def _setBindings(self):
         self.background = wx.Panel(self, -1)
         self.background.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
         self.background.SetFocus()
-        wx.EVT_MENU(self, self.ID_OPEN, self.openFile)
-        #wx.EVT_MENU(self, ID_EXIT, self.terminateProgram)
         self.bindings = {
                         wx.WXK_PAGEDOWN: self.Next,
                         wx.WXK_PAGEUP: self.Prev,
@@ -81,7 +67,7 @@ class ImageFrame(wx.Frame):
 
             #We are working with a zip file
             if len(self.files) == 1 and self.files[0].endswith(".zip"):
-                self.zip = zipfile.ZipFile(self.files[0], "r")
+                self.zip = zipfile.ZipFile(self.dir + self.files[0], "r")
                 self.files = self.zip.namelist()
                 print self.files
                 self.dir = ""
