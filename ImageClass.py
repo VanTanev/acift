@@ -119,7 +119,7 @@ class ImageFrame(wx.Frame):
         self.sizer.Fit(self)
         
     def getImage(self):
-        if self.isZip:
+        if self.isZip == True:
             self.stream = cStringIO.StringIO(self.zip.read(self.files[self.current]))
             #bmp = wx.BitmapFromImage( wx.ImageFromStream( stream ))
             return Image.open(self.stream)
@@ -145,17 +145,17 @@ class ImageFrame(wx.Frame):
     def Next(self):
         print "Next!"
         self.current += 1
-        print "Going to image %d out of %d." %(self.current,self.size)
         if self.current >= self.size:
             self.current = 0
+        print "Going to image %d out of %d." %(self.current + 1, self.size)
         self.openImage()
     
     def Prev(self):
         print "Prev!"
         self.current -= 1
-        print "Going to image %d out of %d." %(self.current,self.size)
         if self.current < 0:
-            self.current = self.size
+            self.current = self.size - 1
+        print "Going to image %d out of %d." %(self.current + 1, self.size)
         self.openImage()
 
 
