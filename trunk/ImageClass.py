@@ -1,40 +1,41 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import wx
+
 import Image
 import os
 import menu
 import zipfile
-import cStringIO
+from events import *
+from ImageLoaders import *
 
-class ImageFrame(wx.Frame):
+
+class ImageFrame(wx.Frame, Events):
     def __init__(self, *args, **kwds):
         #self.events = events()
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
 
         #Default data - this needs to be changed at some point
-        self.dir = "./"
-        self.files = [u"1.jpg"]
-        self.current = 0
-        self.size = 1
-        self.isZip = False
+        self.source = Files()
+        source = self.source
+        source.dir = "./"
+        source.files = [u"1.jpg"]
+        source.current = 0
+        source.size = 1
+        source.isZip = False
+        self.allowedTypes = ("png","jpg","jpeg","gif")
+        self.fit = 0
         
-        self.sizer = wx.BoxSizer(wx.VERTICAL | wx.EXPAND)
         self.background_panel = wx.Panel(self, -1)
         try:
-            self.image = Image.open(self.dir + self.files[self.current])
-            self.bmp = pilToBitmap(self.image)
-            self.picture = wx.StaticBitmap(self, -1, self.bmp)
-
+            self.picture = wx.StaticBitmap(self, -1)
+            self.sizer = wx.BoxSizer(wx.VERTICAL | wx.EXPAND)
             self.SetSizer(self.sizer)
             self.sizer.Add(self.picture, 0, wx.EXPAND, 0)
-            self.sizer.Fit(self)
+            self.openImage()
         except Exception, e:
             print Exception, e
 
-
-        self.SetTitle("ACIFT")
         self._doLayout()
         self._setBindings()
 
@@ -43,107 +44,80 @@ class ImageFrame(wx.Frame):
         self.Layout()
         self.Centre()
     
-    def _setBindings(self):
-        self.background = wx.Panel(self, -1)
-        self.background.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
-        self.background.SetFocus()
-        self.bindings = {
-                        wx.WXK_PAGEDOWN: self.Next,
-                        wx.WXK_PAGEUP: self.Prev,
-                        wx.WXK_SPACE: self.openFile
-                        }
 
+#-----------------------------------#
+#                                   #
+#            Fucntions              #
+#                                   #
+#-----------------------------------#
 
     def openFile(self, event = None):
-        openFileDialog = wx.FileDialog(self, "Open a file", self.dir, "",
+        openFileDialog = wx.FileDialog(self, "Open a file", self.source.dir, "",
         "All files (*.*)|*.*|BMP files (*.bmp)|*.bmp|JPEG files (*.jpg)|*.jpg|Zip files (*.zip)|*.zip"
         , wx.OPEN | wx.FD_MULTIPLE | wx.FD_PREVIEW)
         if openFileDialog.ShowModal() == wx.ID_OK:
             #Default case - working with several files
-            self.files=openFileDialog.GetFilenames()
-            self.dir=openFileDialog.GetDirectory() + "/"
-            self.current = 0
+            self.source = Files( dir = openFileDialog.GetDirectory() + "/", files = openFileDialog.GetFilenames())
+            source = self.source
             self.isZip = False
-
+            
             #We are working with a zip file
-            if len(self.files) == 1 and self.files[0].endswith(".zip"):
-                self.zip = zipfile.ZipFile(self.dir + self.files[0], "r")
-                self.files = self.zip.namelist()
-                print self.files
-                self.dir = ""
+            if len(source.files) == 1 and source.files[0].endswith(".zip"):
+                self.source = Zip( dir = source.dir, files = source.files )
+                source = self.source
+                source.zip = zipfile.ZipFile(source.dir + source.files[0], "r")
+                source.files = [file for file in source.zip.namelist() if file.endswith(self.allowedTypes)]
+                source.current = 0
+                source.dir = ""
                 self.isZip = True
 
             #Working with a directory (not used at the moment)
-            elif len(self.files) == 1 and os.path.isdir(self.files[0]):
-                self.dir = self.files[0] + "/"
-                self.files = [file for file in os.listdir(self.dir) if file.endswith(".jpg")]
+            elif len(source.files) == 1 and os.path.isdir(source.files[0]):
+                source.dir = source.files[0] + "/"
+                source.files = [file for file in os.listdir(source.dir) if file.endswith(".jpg")]
 
             #Working with only one file - open all files in the folder
-            elif len(self.files) == 1:
-                self.current = self.files[0]
-                self.files = [file for file in os.listdir(self.dir) if file.endswith(".jpg")]
-                self.current = self.files.index(self.current)
+            elif len(source.files) == 1:
+                source.current = source.files[0]
+                source.files = [file for file in os.listdir(source.dir) if file.endswith(self.allowedTypes)]
+                source.current = source.files.index(source.current)
 
-            self.size = len(self.files)
+            source.size = len(source.files)
             openFileDialog.Destroy()
             #TODO: Make this work with """ and %s
             print "*"*20
             print "Loading filenames"
-            print "Current Dir:", self.dir
-            print "Files", self.files
-            print "Starting with", self.current
+            print "Current Dir:", source.dir
+            print "Files", source.files
+            print "Starting with", source.current
             print "*"*20
             self.openImage()
         
     def openImage(self):
-        #Is this needed?
-        self.bmp.Destroy()
-        del self.image
-        self.image = self.getImage()
-        self.bmp = pilToBitmap(self.image)
-        self.picture.SetBitmap(self.bmp)
+        self.rawImage = Image.open( self.source.getImage() )
+        self.processedImage = self.resize(self.rawImage, self.rawImage.size)
+        self.showImage()
+        self.SetTitle("ACIFT - " + self.source.files[self.source.current])
+
+    def showImage(self):
+        self.bmp = pilToBitmap( self.processedImage )
+        self.picture.SetBitmap( self.bmp )
         self.sizer.Fit(self)
+
+    def resize(self, image, (x, y)):
+        x,y = int(x), int(y)
+        #This fits a big image to the screen. It should be in a
+        #separate function (this for later)
         
-    def getImage(self):
-        if self.isZip == True:
-            self.stream = cStringIO.StringIO(self.zip.read(self.files[self.current]))
-            #bmp = wx.BitmapFromImage( wx.ImageFromStream( stream ))
-            return Image.open(self.stream)
-        return Image.open(self.dir + self.files[self.current])
-    
-    def OnKeyDown(self, event):
-        #TODO: Write events for special buttons
-        keycode = event.GetKeyCode()
-        print keycode
-        try:
-            self.bindings[keycode]()
-        except Exception,e:
-            print Exception, e
-
-
-
-#-----------------------------------#
-#                                   #
-#           Events                  #
-#                                   #
-#-----------------------------------#
-
-    def Next(self):
-        print "Next!"
-        self.current += 1
-        if self.current >= self.size:
-            self.current = 0
-        print "Going to image %d out of %d." %(self.current + 1, self.size)
-        self.openImage()
-    
-    def Prev(self):
-        print "Prev!"
-        self.current -= 1
-        if self.current < 0:
-            self.current = self.size - 1
-        print "Going to image %d out of %d." %(self.current + 1, self.size)
-        self.openImage()
-
+        #if the options are set to fit image to screen
+        #need to make them dynamic - work for any resolution?
+        if self.fit:
+            if x > 1280:
+                (x,y) = (1280, int(y*1280/x))
+            if y > 800:
+                (x,y) = (int(x*800/y), 800)
+#        print x,y
+        return image.resize((x,y), Image.ANTIALIAS)
 
 #-----------------------------------#
 #                                   #
