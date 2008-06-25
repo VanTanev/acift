@@ -15,5 +15,6 @@ if __name__ == "__main__":
     Menu = MenuBar(Main)
     
     ACIFT.SetTopWindow(Main)
+    
     Main.Show()
     ACIFT.MainLoop()

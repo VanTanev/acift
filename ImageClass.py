@@ -5,16 +5,19 @@ import Image
 import os
 import menu
 import zipfile
+#These are the UI commands - next, previous...
 from events import *
+#These are the types of input we work with - archives, lists of files...
 from ImageLoaders import *
-
+#These are the UI options - Fullscreen, Fit-to-screen...
+from options import Options
 
 class ImageFrame(wx.Frame, Events):
     def __init__(self, *args, **kwds):
         #self.events = events()
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-
+        self.options = Options()
         #Default data - this needs to be changed at some point
         self.source = Files()
         source = self.source
@@ -22,9 +25,8 @@ class ImageFrame(wx.Frame, Events):
         source.files = [u"1.jpg"]
         source.current = 0
         source.size = 1
-        source.isZip = False
         self.allowedTypes = ("png","jpg","jpeg","gif")
-        self.fit = 0
+        
         
         self.background_panel = wx.Panel(self, -1)
         try:
@@ -74,7 +76,7 @@ class ImageFrame(wx.Frame, Events):
             #Working with a directory (not used at the moment)
             elif len(source.files) == 1 and os.path.isdir(source.files[0]):
                 source.dir = source.files[0] + "/"
-                source.files = [file for file in os.listdir(source.dir) if file.endswith(".jpg")]
+                source.files = [file for file in os.listdir(source.dir) if file.endswith(self.allowedTypes)]
 
             #Working with only one file - open all files in the folder
             elif len(source.files) == 1:
@@ -106,12 +108,13 @@ class ImageFrame(wx.Frame, Events):
 
     def resize(self, image, (x, y)):
         x,y = int(x), int(y)
+        print x,y
         #This fits a big image to the screen. It should be in a
         #separate function (this for later)
         
         #if the options are set to fit image to screen
         #need to make them dynamic - work for any resolution?
-        if self.fit:
+        if self.options.fit:
             if x > 1280:
                 (x,y) = (1280, int(y*1280/x))
             if y > 700:
