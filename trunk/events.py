@@ -1,5 +1,6 @@
 import wx
 
+
 class Events():
     def _setBindings(self):
         self.background = wx.Panel(self, -1)
@@ -10,12 +11,16 @@ class Events():
                         wx.WXK_PAGEUP: self.Prev,
                         wx.WXK_HOME: self.First,
                         wx.WXK_END: self.Last,
-                        wx.WXK_SPACE: self.openFile,
-                        ord('F'): self.fitScreen,
+                        wx.WXK_SPACE: self.Next,
+                        ord('D'): self.fitScreen,
                         wx.WXK_UP: self.scrollUp,
                         wx.WXK_DOWN: self.scrollDown,
                         ord('='): self.makeBigger,
+                        ord('O'): self.openFile,
+                        #FIXME: This seems to be needed by Windows
+                        43: self.makeBigger,
                         ord('-'): self.makeSmaller,
+                        ord('F'): self.fullScreen,
                         }
 
     def OnKeyDown(self, event):
@@ -24,17 +29,23 @@ class Events():
         try:
             self.bindings[keycode]()
         except Exception,e:
-            print Exception, e
+            print Exception, e			
 
 #-----------------------------------#
 #                                   #
 #           Events                  #
 #                                   #
 #-----------------------------------#
+    def fullScreen(self):
+        print "Fullscreen is not set to: %s"% self.options.fullScreen
+        #ACIFT.ShowFullScreen(self.fit)
+        self.options.fullScreen = True - self.options.fullScreen
+        self.ShowFullScreen(self.options.fullScreen)
 
     def fitScreen(self):
-        self.fit = True - self.fit
-        print "Fit to screen is now set to:", self.fit
+    	#TODO: Make this be fullscreen
+        self.options.fit = True - self.options.fit
+        print "Fit to screen is now set to: %s"% self.options.fit
         self.openImage()
     
     #make this work
@@ -48,7 +59,7 @@ class Events():
     #make these two work dynamically
     def makeBigger(self):
         #will not work if the image is set to a specific size
-        if not self.fit:
+        if not self.options.fit:
             self.processedImage = self.resize(
                 self.rawImage,
                 (self.processedImage.size[0]*1.2, self.processedImage.size[1]*1.2))
@@ -56,7 +67,7 @@ class Events():
         
     def makeSmaller(self):
         #will not work if the image is set to a specific size
-        if not self.fit:
+        if not self.options.fit:
             self.processedImage = self.resize(
                 self.rawImage,
                 (self.processedImage.size[0]/1.2, self.processedImage.size[1]/1.2))
