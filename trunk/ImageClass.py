@@ -114,8 +114,8 @@ class ImageFrame(wx.Frame, Events):
         if self.fit:
             if x > 1280:
                 (x,y) = (1280, int(y*1280/x))
-            if y > 800:
-                (x,y) = (int(x*800/y), 800)
+            if y > 700:
+                (x,y) = (int(x*700/y), 700)
 #        print x,y
         return image.resize((x,y), Image.ANTIALIAS)
 
