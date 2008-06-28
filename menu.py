@@ -1,10 +1,10 @@
 import wx
-ID_OPEN=111
-ID_ABOUT=101
-ID_EXIT=110
 
 class MenuBar():
     def __init__(self, master):
+        ID_OPEN=111
+        ID_ABOUT=101
+        ID_EXIT=110
         self.master = master #needed for internal functions
         Main_MenuBar = wx.MenuBar()
         menu_file = wx.Menu()

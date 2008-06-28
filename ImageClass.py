@@ -11,6 +11,8 @@ from events import *
 from ImageLoaders import *
 #These are the UI options - Fullscreen, Fit-to-screen...
 from options import Options
+import ImageFilter
+
 
 class ImageFrame(wx.Frame, Events):
     def __init__(self, *args, **kwds):
@@ -25,15 +27,19 @@ class ImageFrame(wx.Frame, Events):
         source.files = [u"1.jpg"]
         source.current = 0
         source.size = 1
-        self.allowedTypes = ("png","jpg","jpeg","gif")
-        
+        self.allowedTypes = ("png","jpg","jpeg","gif","bmp")
+        self.CenterOnScreen()
         
         self.background_panel = wx.Panel(self, -1)
         try:
             self.picture = wx.StaticBitmap(self, -1)
-            self.sizer = wx.BoxSizer(wx.VERTICAL | wx.EXPAND)
-            self.SetSizer(self.sizer)
-            self.sizer.Add(self.picture, 0, wx.EXPAND, 0)
+            self.sizer_2 = wx.BoxSizer(wx.VERTICAL)
+            self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+            self.sizer.Add(self.picture, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+            self.sizer_2.Add(self.sizer, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+            self.SetSizer(self.sizer_2)
+            self.sizer_2.Fit(self)
+            self.Layout()
             self.openImage()
         except Exception, e:
             print Exception, e
@@ -55,13 +61,15 @@ class ImageFrame(wx.Frame, Events):
 
     def openFile(self, event = None):
         openFileDialog = wx.FileDialog(self, "Open a file", self.source.dir, "",
-        "All files (*.*)|*.*|BMP files (*.bmp)|*.bmp|JPEG files (*.jpg)|*.jpg|Zip files (*.zip)|*.zip"
+        "All files (*.*)|*.*|Image files (bmp, jpg, jpeg, png, gif)|(*.bmp;*.jpg;*.jpeg;*.png;*.gif)|Zip files (*.zip)|*.zip"
         , wx.OPEN | wx.FD_MULTIPLE | wx.FD_PREVIEW)
         if openFileDialog.ShowModal() == wx.ID_OK:
             #Default case - working with several files
             self.source = Files( dir = openFileDialog.GetDirectory() + "/", files = openFileDialog.GetFilenames())
             source = self.source
-            self.isZip = False
+            #This is needed to fix a current bug
+            #the size of the window is not calculated on files open in fullscreen
+            self.fullScreen(False)
             
             #We are working with a zip file
             if len(source.files) == 1 and source.files[0].endswith(".zip"):
@@ -71,7 +79,6 @@ class ImageFrame(wx.Frame, Events):
                 source.files = [file for file in source.zip.namelist() if file.endswith(self.allowedTypes)]
                 source.current = 0
                 source.dir = ""
-                self.isZip = True
 
             #Working with a directory (not used at the moment)
             elif len(source.files) == 1 and os.path.isdir(source.files[0]):
@@ -96,7 +103,7 @@ class ImageFrame(wx.Frame, Events):
             self.openImage()
         
     def openImage(self):
-        self.rawImage = Image.open( self.source.getImage() )
+        self.rawImage = Image.open( self.source.getImage() ).convert( "RGB")
         self.processedImage = self.resize(self.rawImage, self.rawImage.size)
         self.showImage()
         self.SetTitle("ACIFT - " + self.source.files[self.source.current])
@@ -106,6 +113,7 @@ class ImageFrame(wx.Frame, Events):
         self.picture.SetBitmap( self.bmp )
         self.sizer.Fit(self)
 
+    #TODO: Remove annoying flicker on image, srsly
     def resize(self, image, (x, y)):
         x,y = int(x), int(y)
         print x,y
@@ -120,6 +128,7 @@ class ImageFrame(wx.Frame, Events):
             if y > 700:
                 (x,y) = (int(x*700/y), 700)
 #        print x,y
+        #TODO: different filters
         return image.resize((x,y), Image.ANTIALIAS)
 
 #-----------------------------------#
