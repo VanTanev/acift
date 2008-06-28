@@ -36,27 +36,32 @@ class Events():
 #           Events                  #
 #                                   #
 #-----------------------------------#
-    def fullScreen(self):
-        print "Fullscreen is not set to: %s"% self.options.fullScreen
+    def fullScreen(self, value = -1):
         #ACIFT.ShowFullScreen(self.fit)
-        self.options.fullScreen = True - self.options.fullScreen
+        if value != -1:
+            self.options.fullScreen = value
+        else:
+            self.options.fullScreen = True - self.options.fullScreen
+        print "Fullscreen is now set to: %s"% self.options.fullScreen
         self.ShowFullScreen(self.options.fullScreen)
+        #self.ShowFullScreen(self.options.fullScreen, style = 0)
+        #Style = 0, lol :)
 
     def fitScreen(self):
     	#TODO: Make this be fullscreen
         self.options.fit = True - self.options.fit
-        print "Fit to screen is now set to: %s"% self.options.fit
+        print "Fit-to-screen is now set to: %s"% self.options.fit
         self.openImage()
     
-    #make this work
+    #TODO: make this work
     def scrollDown(self):
         print "Scroll Down!"
     
-    #make this work
+    #TODO: make this work
     def scrollUp(self):
         print "Scroll Up!"
         
-    #make these two work dynamically
+    #TODO: make these two work dynamically
     def makeBigger(self):
         #will not work if the image is set to a specific size
         if not self.options.fit:
@@ -68,9 +73,10 @@ class Events():
     def makeSmaller(self):
         #will not work if the image is set to a specific size
         if not self.options.fit:
-            self.processedImage = self.resize(
-                self.rawImage,
-                (self.processedImage.size[0]/1.2, self.processedImage.size[1]/1.2))
+            if self.processedImage.size[0] >= 100 and self.processedImage.size[1] >= 100:
+                self.processedImage = self.resize(
+                    self.rawImage,
+                    (self.processedImage.size[0]/1.2, self.processedImage.size[1]/1.2))
             self.showImage()
         
     def Next(self):
